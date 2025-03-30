@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medical Test Navigator</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --secondary: #64748b;
+      --background: #f8fafc;
+      --surface: #ffffff;
+      --error: #ef4444;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --border: #e2e8f0;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    
+    body {
+      background-color: var(--background);
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+    
+    header {
+      background-color: var(--surface);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      padding: 1rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: var(--primary);
+    }
+    
+    .logo-icon {
+      margin-right: 0.5rem;
+      width: 32px;
+      height: 32px;
+      background-color: var(--primary);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+    
+    nav ul {
+      display: flex;
+      list-style: none;
+    }
+    
+    nav ul li {
+      margin-left: 1.5rem;
+    }
+    
+    nav ul li a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    
+    nav ul li a:hover {
+      color: var(--primary);
+    }
+    
+    .btn {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 0.375rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color 0.2s;
+    }
+    
+    .btn:hover {
+      background-color: var(--primary-dark);
+    }
+    
+    .btn-outline {
+      background-color: transparent;
+      border: 1px solid var(--primary);
+      color: var(--primary);
+    }
+    
+    .btn-outline:hover {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    main {
+      padding: 2rem 0;
+    }
+    
+    .card {
+      background-color: var(--surface);
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--text-primary);
+    }
+    
+    .progress-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .progress-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      flex: 1;
+    }
+    
+    .progress-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 15px;
+      right: -50%;
+      width: 100%;
+      height: 2px;
+      background-color: var(--border);
+      z-index: 1;
+    }
+    
+    .progress-step.active:not(:last-child)::after {
+      background-color: var(--primary);
+    }
+    
+    .step-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .step-circle.active {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .step-label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+    
+    .step-label.active {
+      color: var(--primary);
+      font-weight: 500;
+    }
+    
+    .input-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .input-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    
+    .input-field {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 0.375rem;
+      font-size: 1rem;
+    }
+    
+    .input-field:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .data-card {
+      background-color: var(--surface);
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      padding: 1.5rem;
+      border-left: 4px solid var(--primary);
+      transition: transform 0.2s;
+    }
+    
+    .data-card:hover {
+      transform: translateY(-3px);
+    }
+    
+    .data-card-title {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    .data-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    
+    .timeline {
+      position: relative;
+      padding-left: 2rem;
+    }
+    
+    .timeline::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 7px;
+      height: 100%;
+      width: 2px;
+      background-color: var(--border);
+    }
+    
+    .timeline-item {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+    
+    .timeline-marker {
+      position: absolute;
+      top: 0;
+      left: -2rem;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background-color: var(--primary);
+      border: 3px solid white;
+    }
+    
+    .timeline-content {
+      padding: 0.75rem;
+      background-color: white;
+      border-radius: 0.375rem;
+      border: 1px solid var(--border);
+    }
+    
+    .timeline-date {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.25rem;
+    }
+    
+    .timeline-title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    
+    .chart-container {
+      height: 200px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding-top: 1rem;
+    }
+    
+    .chart-bar {
+      width: 2rem;
+      background-color: var(--primary);
+      border-radius: 4px 4px 0 0;
+      position: relative;
+    }
+    
+    .chart-label {
+      position: absolute;
+      bottom: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    
+    .notification {
+      padding: 0.75rem 1rem;
+      border-radius: 0.375rem;
+      background-color: #EFF6FF;
+      border-left: 4px solid var(--primary);
+      margin-bottom: 1rem;
+    }
+    
+    .recommendation {
+      display: flex;
+      align-items: flex-start;
+      padding: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 0.375rem;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .recommendation:hover {
+      background-color: #F1F5F9;
+    }
+    
+    .recommendation-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #EFF6FF;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1rem;
+      flex-shrink: 0;
+    }
+    
+    .recommendation-content {
+      flex: 1;
+    }
+    
+    .recommendation-title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    
+    .recommendation-desc {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .recommendation-meta {
+      display: flex;
+      align-items: center;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    
+    .recommendation-meta span {
+      display: flex;
+      align-items: center;
+      margin-right: 1rem;
+    }
+    
+    .recommendation-meta span::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 0.25rem;
+    }
+    
+    .recommendation-meta .priority-high::before {
+      background-color: var(--error);
+    }
+    
+    .recommendation-meta .priority-medium::before {
+      background-color: var(--warning);
+    }
+    
+    .recommendation-meta .priority-low::before {
+      background-color: var(--success);
+    }
+    
+    footer {
+      background-color: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 2rem 0;
+      margin-top: 2rem;
+    }
+    
+    .footer-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+    
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .progress-step:not(:last-child)::after {
+        right: -30%;
+        width: 60%;
+      }
+      
+      .header-content {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      nav ul {
+        margin-top: 1rem;
+      }
+      
+      nav ul li {
+        margin-left: 0.75rem;
+        margin-right: 0.75rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container header-content">
+      <div class="logo">
+        <div class="logo-icon">M</div>
+        <span>MedNav</span>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="#dashboard">Dashboard</a></li>
+          <li><a href="#tests">My Tests</a></li>
+          <li><a href="#recommendations">Recommendations</a></li>
+          <li><a href="#profile">Profile</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  
+  <main class="container">
+    <div class="card">
+      <div class="card-title">Your Health Journey</div>
+      <div class="progress-container">
+        <div class="progress-step active">
+          <div class="step-circle active">1</div>
+          <div class="step-label active">Data Collection</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle">2</div>
+          <div class="step-label">Analysis</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle">3</div>
+          <div class="step-label">Pathways</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle">4</div>
+          <div class="step-label">Verification</div>
+        </div>
+        <div class="progress-step">
+          <div class="step-circle">5</div>
+          <div class="step-label">Action Plan</div>
+        </div>
+      </div>
+      
+      <div class="card-title">Data Collection</div>
+      <p style="margin-bottom: 1.5rem;">Please enter your information to help us create your personalized health pathway.</p>
+      
+      <div class="grid">
+        <div class="data-card">
+          <div class="data-card-title">Symptoms</div>
+          <p style="margin-bottom: 1rem;">Enter your current symptoms and how long you've had them.</p>
+          <button class="btn">Add Symptoms</button>
+        </div>
+        
+        <div class="data-card">
+          <div class="data-card-title">Test Results</div>
+          <p style="margin-bottom: 1rem;">Upload your latest medical test results for analysis.</p>
+          <button class="btn">Upload Tests</button>
+        </div>
+        
+        <div class="data-card">
+          <div class="data-card-title">Health History</div>
+          <p style="margin-bottom: 1rem;">Share relevant medical history for better context.</p>
+          <button class="btn">Add History</button>
+        </div>
+        
+        <div class="data-card">
+          <div class="data-card-title">Medical Images</div>
+          <p style="margin-bottom: 1rem;">Upload photos of visible symptoms if applicable.</p>
+          <button class="btn">Upload Images</button>
+        </div>
+      </div>
+      
+      <div style="margin-top: 2rem; text-align: right;">
+        <button class="btn">Continue</button>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-title">Your Current Test Results</div>
+      <div class="notification">
+        <strong>Note:</strong> All data is processed locally for privacy. You can delete your data at any time.
+      </div>
+      
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-marker"></div>
+          <div class="timeline-content">
+            <div class="timeline-date">Today</div>
+            <div class="timeline-title">Blood Glucose Test</div>
+            <p>Result: 98 mg/dL (Normal range: 70-99 mg/dL)</p>
+          </div>
+        </div>
+        
+        <div class="timeline-item">
+          <div class="timeline-marker"></div>
+          <div class="timeline-content">
+            <div class="timeline-date">3 days ago</div>
+            <div class="timeline-title">Blood Pressure Check</div>
+            <p>Result: 124/78 mmHg (Target: below 120/80 mmHg)</p>
+          </div>
+        </div>
+        
+        <div class="timeline-item">
+          <div class="timeline-marker"></div>
+          <div class="timeline-content">
+            <div class="timeline-date">1 week ago</div>
+            <div class="timeline-title">Complete Blood Count</div>
+            <p>All values within normal ranges. View detailed results.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-title">Recommended Next Steps</div>
+      
+      <div class="recommendation">
+        <div class="recommendation-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15M9 5C9 6.10457 9.89543 7 11 7H13C14.1046 7 15 6.10457 15 5M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5M12 12H15M12 16H15M9 12H9.01M9 16H9.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="recommendation-content">
+          <div class="recommendation-title">Schedule HbA1c Test</div>
+          <div class="recommendation-desc">
+            Based on your recent glucose readings, we recommend a Hemoglobin A1c test to evaluate your average blood sugar levels over the past 3 months.
+          </div>
+          <div class="recommendation-meta">
+            <span class="priority-medium">Medium Priority</span>
+            <span>Within 2 weeks</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="recommendation">
+        <div class="recommendation-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 14C8.13401 14 5 17.134 5 21H19C19 17.134 15.866 14 12 14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="recommendation-content">
+          <div class="recommendation-title">Consult with Endocrinologist</div>
+          <div class="recommendation-desc">
+            Your test pattern shows early indicators that would benefit from an endocrinologist assessment for more specialized guidance.
+          </div>
+          <div class="recommendation-meta">
+            <span class="priority-low">Low Priority</span>
+            <span>Within 1 month</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="recommendation">
+        <div class="recommendation-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 14V16M12 8V12M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="recommendation-content">
+          <div class="recommendation-title">Daily Blood Pressure Monitoring</div>
+          <div class="recommendation-desc">
+            Your blood pressure readings are slightly elevated. Start monitoring daily to establish a pattern and track your response to lifestyle changes.
+          </div>
+          <div class="recommendation-meta">
+            <span class="priority-high">High Priority</span>
+            <span>Start immediately</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-title">Your Health Trends</div>
+      <div class="chart-container">
+        <div class="chart-bar" style="height: 120px;">
+          <span class="chart-label">Jan</span>
+        </div>
+        <div class="chart-bar" style="height: 150px;">
+          <span class="chart-label">Feb</span>
+        </div>
+        <div class="chart-bar" style="height: 100px;">
+          <span class="chart-label">Mar</span>
+        </div>
+        <div class="chart-bar" style="height: 130px;">
+          <span class="chart-label">Apr</span>
+        </div>
+        <div class="chart-bar" style="height: 110px;">
+          <span class="chart-label">May</span>
+        </div>
+        <div class="chart-bar" style="height: 90px;">
+          <span class="chart-label">Jun</span>
+        </div>
+        <div class="chart-bar" style="height: 80px;">
+          <span class="chart-label">Jul</span>
+        </div>
+      </div>
+      <div style="text-align: center; margin-top: 2rem;">
+        <p>Blood Glucose Trend (mg/dL)</p>
+      </div>
+    </div>
+  </main>
+  
+  <footer>
+    <div class="container footer-content">
+      <div>© 2025 Medical Test Navigator. All rights reserved.</div>
+      <div>
+        <a href="#" style="color: var(--text-secondary); margin-right: 1rem;">Privacy Policy</a>
+        <a href="#" style="color: var(--text-secondary);">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
